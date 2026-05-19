@@ -1,193 +1,75 @@
-<div align="center">
-  <img src="abroot-logo.svg" height="120">
-  <h1 align="center">ABRoot v2</h1>
-  <p align="center">ABRoot is a utility that provides full immutability and
-    atomicity to a Linux system, by transacting between two root filesystems.
-    Updates are performed using OCI images, to ensure that the system is always
-    in a consistent state. It also allows for local atomic changes thanks to
-    the integrated ABRoot package manager, which generates local OCI images
-    with the user's changes, and then applies them on top of the system's
-    default image.</p>
-</div>
+[update-readmes]   Mode: rewrite — migrating to template structure...
+# ABRoot
 
-## Help output
+[![Built with Ona](https://ona.com/build-with-ona.svg)](https://app.ona.com/#https://github.com/Interested-Deving-1896/ABRoot)
 
-```md
-ABRoot provides full immutability and atomicity by performing transactions between 2 root partitions (A<->B)
+<!-- AI:start:what-it-does -->
+_Description pending._
+<!-- AI:end:what-it-does -->
 
-Usage:
-  abroot [command]
+## Architecture
 
-Available Commands:
-  completion  Generate the autocompletion script for the specified shell
-  help        Help about any command
-  kargs       Manage kernel parameters
-  pkg         Manage packages
-  rollback    Return the system to a previous state
-  status      Display status
-  upgrade     Update the boot partition
+<!-- AI:start:architecture -->
+_Architecture documentation pending._
+<!-- AI:end:architecture -->
 
-Flags:
-  -h, --help      help for abroot
-  -v, --verbose   Show more detailed output
-      --version   version for abroot
+## Install
 
-Use "abroot [command] --help" for more information about a command.
+<!-- Add installation instructions here. This section is yours — the AI will not modify it. -->
+
+```bash
+git clone https://github.com/Interested-Deving-1896/ABRoot.git
+cd ABRoot
 ```
 
-## Installation
+## Usage
 
-ABRoot is a single binary, which can be placed anywhere on the system. It
-requires administrative privileges to run and a configuration file to be
-present in one of the following locations, ordered by priority:
+<!-- Add usage examples here. This section is yours — the AI will not modify it. -->
 
-- `~/.config/abroot/abroot.json` -> for user configuration
-- `config/abroot.json` -> for development purposes only
-- `../config/abroot.json` -> for development purposes only
-- `/etc/abroot/abroot.json` -> for administrative configuration
-- `/usr/share/abroot/abroot.json` -> for system-wide configuration
+## Configuration
 
-The configuration file is a JSON file with the following structure:
+<!-- Document configuration options here. This section is yours — the AI will not modify it. -->
 
-```json
-{
-    "maxParallelDownloads": 2,
+## CI
 
-    "registry": "ghcr.io",
-    "registryService": "registry.ghcr.io",
-    "registryAPIVersion": "v2",
-    "name": "vanilla-os/desktop",
-    "tag": "main",
+<!-- AI:start:ci -->
+_CI documentation pending._
+<!-- AI:end:ci -->
 
-    "iPkgMngPre": "lpkg --unlock",
-    "iPkgMngPost": "lpkg --lock",
-    "iPkgMngAdd": "apt install -y",
-    "iPkgMngRm": "apt remove -y",
-    "iPkgMngApi": "https://packages.vanillaos.org/api/pkg/{packageName}",
-    "iPkgMngStatus": 0,
+## Mirror chain
 
-    "updateInitramfsCmd": "lpkg --unlock && /usr/sbin/update-initramfs -u && lpkg --lock",
-    "updateGrubCmd": "/usr/sbin/grub-mkconfig -o '%s'",
+<!-- AI:start:mirror-chain -->
+This repo is maintained in [`Interested-Deving-1896/ABRoot`](https://github.com/Interested-Deving-1896/ABRoot) and mirrored through:
 
-    "differURL": "https://differ.vanillaos.org",
-
-    "partLabelVar": "vos-var",
-    "partLabelA": "vos-a",
-    "partLabelB": "vos-b",
-    "partLabelBoot": "vos-boot",
-    "partLabelEfi": "vos-efi",
-    "PartCryptVar": "/dev/mapper/vos--var-var",
-
-    "thinProvisioning": false,
-    "thinInitVolume": ""
-}
+```
+Interested-Deving-1896/ABRoot  ──►  OpenOS-Project-OSP/ABRoot  ──►  OpenOS-Project-Ecosystem-OOC/ABRoot
 ```
 
-The following table describes each of the configuration options:
+Changes flow downstream automatically via the hourly mirror chain in
+[`fork-sync-all`](https://github.com/Interested-Deving-1896/fork-sync-all).
+Direct commits to OSP or OOC are detected and opened as PRs back to `Interested-Deving-1896`.
+<!-- AI:end:mirror-chain -->
 
-| Option | Description |
-| --- | --- |
-| `maxParallelDownloads` | The maximum number of parallel downloads to perform when updating the system. |
-| `registry` | The registry to use when pulling OCI images. |
-| `registryService` | The registry service to use when pulling OCI images. |
-| `registryAPIVersion` | The Docker Registry API version to use when pulling OCI images. (Only `v2` is tested) |
-| `name` | The name of the OCI image to use when pulling OCI images. |
-| `tag` | The tag of the OCI image to use when pulling OCI images. |
-| `iPkgMngPre` | The command to run before performing any package management operation. This is useful to keep the package manager locked outside of a transaction. It can be a command or a script. |
-| `iPkgMngPost` | Similar to `iPkgMngPre`, but runs after the package management operation. |
-| `iPkgMngAdd` | The command to run when adding a package. It can be a command or a script. |
-| `iPkgMngRm` | The command to run when removing a package. It can be a command or a script. |
-| `iPkgMngApi` | The API endpoint to use when querying for package information. If not set, ABRoot will not check if a package exists before installing it. This could lead to errors. Take a look at our [Eratosthenes API](https://github.com/Vanilla-OS/Eratosthenes/blob/388e6f724dcda94ee60964e7b12a78ad79fb8a40/eratosthenes.py#L52) for an example. |
-| `iPkgMngStatus` | The status of the package manager feature. The value '0' means that the feature is disabled, the value '1' means enabled and the value '2' means that it will require user agreement the first time it is used. If the feature is disabled, it will not appear in the commands list. |
-| `updateInitramfsCmd` | Command that should be run to update the initramfs in /boot. |
-| `updateGrubCmd` | Command that should be run to update the grub config. %s needs to be included as a placeholder for the generated config file. |
-| `differURL` | The URL of the [Differ API](https://github.com/Vanilla-OS/Differ) service to use when comparing two OCI images. |
-| `partLabelVar` | The label of the partition dedicated to the system's `/var` directory. |
-| `partLabelA` | The label of the partition dedicated to the system's `A` root. |
-| `partLabelB` | The label of the partition dedicated to the system's `B` root. |
-| `partLabelBoot` | The label of the partition dedicated to the master boot. |
-| `partLabelEfi` | The label of the partition dedicated to the EFI boot. |
-| `PartCryptVar` | The encrypted partition to unlock during boot. On a non-lvm setup, this would be something like `/dev/nvme1n1p3`. |
-| `thinProvisioning` | If set to `true`, ABRoot will use and look for a thin provisioning setup. Check the section about [thin provisioning](#thin-provisioning) for more information. |
-| `thinInitVolume` | The init volume of the thin provisioning setup. |
+## Contributors
 
-## How it works
+<!-- AI:start:contributors -->
+_Contributors pending._
+<!-- AI:end:contributors -->
 
-ABRoot works by performing transactions between two root partitions, `A` and `B`.
+## Origins
 
-### Terminology
+<!-- AI:start:origins -->
+_Original project — no upstream fork._
+<!-- AI:end:origins -->
 
-- **immutable** - a file or directory is immutable if it cannot be modified or
-  deleted by the user directly.
-- **transaction** - a transaction in this context is the process of updating
-  the system or applying changes to it.
-- **atomic** - a transaction is atomic if it is either fully applied or not
-  applied at all. There is no in-between state. This means that if a transaction
-  fails, the system will be kept in the same state as before the transaction
-  started, preventing the system from being left in an inconsistent state.
+## Resources
 
-### Boot process
+<!-- AI:start:resources -->
+_No additional resource files found._
+<!-- AI:end:resources -->
 
-The system manages those root partitions by assigning them the `current` or
-`future` roles. The `current` partition is the one that is currently being used
-by the system (runtime), while the `future` partition is the one that will be
-used after a successful transaction, by performing a reboot, and switching the
-roles of the partitions.
+## License
 
-The boot process is composed of 2 entities:
-
-- **master boot** - the master boot is the first stage of the boot process. It
-  is responsible for loading the correct root-specific boot (GRUB config) and
-  the kernel (which is also root-specific).
-- **root-specific boot** - the root-specific boot is the second stage of the
-  boot process. It is responsible for loading the kernel modules and the kernel
-  parameters, and then booting the kernel.
-
-The following schema shows how the boot process works:
-
-```txt
-+--------------------+    +--------------------+
-|                    |    |                    |
-|    Master Boot     | -> | Root-specific Boot |
-|                    |    |                    |
-+--------------------+    +--------------------+
-                                   |
-                                   v
-+-------------------+    +---------------------+
-|                   |    |                     |
-|       System      | <- |    Root-specific    |
-|                   |    |       Kernel        |
-+-------------------+    |                     |
-                         +---------------------+
-```
-
-### Transaction process
-
-The transaction process is composed of multiple stages (11 at the time of
-writing this). Each stage is responsible for performing a specific task, and
-then passing the control to the next stage. Since ABRoot v2 is still in
-development, the transaction process could still change, so if you're
-interested in the details, please check the source code for `ABSystem`, in the
-`core` package.
-
-## Thin provisioning
-
-ABRoot supports (and suggests) thin provisioning, which allows for a more
-efficient use of disk space.
-
-LVM thin provisioning allows users to create virtual filesystems larger than
-the available physical storage. This is possible due to LVM thin pools
-allocating blocks when they are written, rather than when a volume gets created.
-Thin provisioning is commonly found in places like VPS clusters, where a
-provider can allocate a very large storage pool (e.g. 500TB) without needing
-to have that amount of physical storage. This way, they can provide customers
-with adequate storage limits and only buy more storage when it's actually
-needed.
-
-The following schema shows how an ABRoot-compatible disk layout would look like
-with thin provisioning enabled:
-
-![Thin provisioning schema](assets/lvm-partitioning-structure.png)
-
-To follow up, have a read at our [blog post](https://vanillaos.org/blog/article/2023-11-22/vanilla-os-orchid---devlog-22-nov)
-about thin provisioning in ABRoot.
+<!-- AI:start:license -->
+[GPL-3.0](https://github.com/Interested-Deving-1896/ABRoot/blob/main/LICENSE) © 2026 [Interested-Deving-1896](https://github.com/Interested-Deving-1896)
+<!-- AI:end:license -->
